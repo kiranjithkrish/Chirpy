@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { respondWithJSON, responseWithError } from "./json.js";
-import { BadRequest } from '../middlewares/error.js'
+import { BadRequest } from "./errors.js";
+
 
  export type JSONBody = {
     body: string

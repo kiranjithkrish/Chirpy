@@ -1,7 +1,46 @@
-export type APIConfig = {
-  fileserverHits: number;
+import { MigrationConfig } from "drizzle-orm/migrator";
+import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+
+process.loadEnvFile()
+function envOrThrow(key: string) {
+  const value = process.env[key];
+  if(!value) {
+    throw new Error(`Environment variable ${key} does not exist`)
+  }
+  return value
+}
+
+const migrationConfig: MigrationConfig = {
+  migrationsFolder: "./src/db/migrations",
 };
 
-export const config: APIConfig = {
-    fileserverHits: 0
+type DBConfig = {
+  url: string;
+  migrationConfig: MigrationConfig
+}
+type APIConfig = {
+  fileserverHits: number;
+  dbUrl: string
+};
+
+type Config = {
+  api: APIConfig
+  db: DBConfig
+}
+
+export const apiConfig: APIConfig = {
+    fileserverHits: 0,
+    dbUrl: envOrThrow("DB_URL")
+}
+
+const dbConfig: DBConfig = {
+  url: envOrThrow("DB_URL"),
+  migrationConfig: migrationConfig
+}
+
+export const config: Config = {
+  api: apiConfig,
+  db: dbConfig
 }

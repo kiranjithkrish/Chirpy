@@ -1,3 +1,4 @@
+import { BadRequest, Forbidden, NotFoundError, Unauthorised } from "../api/errors.js";
 export function errorHandler(err, req, res, next) {
     console.log(`Error handler called with message: ${err.message}`);
     res.setHeader('Content-Type', 'application/json');
@@ -15,25 +16,5 @@ export function errorHandler(err, req, res, next) {
     }
     else {
         res.status(500).json({ "error": "Something went wrong on our end" });
-    }
-}
-export class NotFoundError extends Error {
-    constructor(message) {
-        super(message);
-    }
-}
-export class BadRequest extends Error {
-    constructor(message) {
-        super(message);
-    }
-}
-export class Unauthorised extends Error {
-    constructor(message) {
-        super(message);
-    }
-}
-export class Forbidden extends Error {
-    constructor(message) {
-        super(message);
     }
 }

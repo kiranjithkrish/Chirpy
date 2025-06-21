@@ -1,5 +1,5 @@
 import { respondWithJSON } from "./json.js";
-import { BadRequest } from '../middlewares/error.js';
+import { BadRequest } from "./errors.js";
 export async function handleValidateChirp(req, res) {
     let parsedBody = req.body;
     const chirp = parsedBody.body;

@@ -6,8 +6,17 @@ import { handleMetrics } from "./api/metrics.js";
 import { handleMetricsReset } from "./api/reset.js";
 import { handleValidateChirp } from "./api/handleChirp.js";
 import { errorHandler } from "./middlewares/error.js";
+import postgres from "postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { config } from "./config.js";
 
 const PORT: number = 8080
+
+
+const migrationClient = postgres(config.db.url, { max: 1 });
+await migrate(drizzle(migrationClient), config.db.migrationConfig);
+
 
 const app = express();
 

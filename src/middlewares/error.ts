@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { BadRequest, Forbidden, NotFoundError, Unauthorised } from "../api/errors.js";
 
 export function errorHandler(err: Error, req: Request, res: Response, next: NextFunction) {
     console.log(`Error handler called with message: ${err.message}`);
@@ -16,26 +17,4 @@ export function errorHandler(err: Error, req: Request, res: Response, next: Next
     }
 }
 
-export class NotFoundError extends Error {
-    constructor(message: string) {
-        super(message)
-    }
-}
-export class BadRequest extends Error {
-    constructor(message: string) {
-        super(message)
-    }
-}
-
-export class Unauthorised extends Error {
-    constructor(message: string) {
-        super(message)
-    }
-}
-
-export class Forbidden extends Error {
-    constructor(message: string) {
-        super(message)
-    }
-}
 
