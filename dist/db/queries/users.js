@@ -8,3 +8,14 @@ export async function createUser(user) {
         .returning();
     return result;
 }
+export async function deleteUsers() {
+    const result = await db.delete(users);
+    console.log(`Deleted ${result.count} users`);
+    if (result.count > 0) {
+        console.log('Delete operation successful');
+    }
+    else {
+        console.log('No users were deleted (table was already empty)');
+    }
+    return result.count;
+}

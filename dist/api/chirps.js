@@ -1,6 +1,6 @@
 import { respondWithJSON } from "./json.js";
-import { BadRequest } from "./errors.js";
-import { createChirp } from "../db/queries/chirp.js";
+import { BadRequest, NotFoundError } from "./errors.js";
+import { createChirp, getChirp, getChirps } from "../db/queries/chirps.js";
 export async function handleChirp(req, res) {
     let parsedBody = req.body;
     const body = parsedBody.body;
@@ -25,6 +25,21 @@ export async function handleChirp(req, res) {
         throw new Error('Failed to insert chirp into db');
     }
     respondWithJSON(res, 201, insertedChirp);
+}
+export async function getAllChirps(req, res) {
+    const chirps = await getChirps();
+    if (!chirps) {
+        throw new Error('Failed to get all the chirps');
+    }
+    respondWithJSON(res, 200, chirps);
+}
+export async function getChirpWithId(req, res) {
+    const chirpId = req.params.chirpId;
+    const chirp = await getChirp(chirpId);
+    if (!chirp) {
+        throw new NotFoundError('Requested chirp is not found');
+    }
+    respondWithJSON(res, 200, chirp);
 }
 function isValidLength(text) {
     const maxChirpLength = 140;

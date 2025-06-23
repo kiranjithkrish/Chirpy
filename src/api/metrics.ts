@@ -3,7 +3,7 @@ import { config } from "../config.js"
 
 export async function handleMetrics(req: Request, res: Response) {
     res.set('Content-Type', 'text/html; charset=utf-8')
-    const requestCount = config.fileserverHits
+    const requestCount = config.api.fileserverHits
     res.send(`<html>
   <body>
     <h1>Welcome, Chirpy Admin</h1>

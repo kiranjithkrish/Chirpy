@@ -2,12 +2,6 @@ POST http://localhost:8080/api/validate_chirp
 Content-Type: application/json
 
 {
-    "body" : "this is my chirp"
+    "body" : "this is my chirp fsadjljfasdl sdklsdljfa sdfjsdfjal;ds fasdfajsdflka dfjasdlajds"
 }
 
-POST http://localhost:8080/api/validate_chirp
-Content-Type: application/json
-
-{
-    "body": "this is my chirp"
-}

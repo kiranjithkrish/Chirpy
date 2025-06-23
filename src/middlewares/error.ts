@@ -13,7 +13,7 @@ export function errorHandler(err: Error, req: Request, res: Response, next: Next
     } else if (err instanceof Forbidden) {
         res.status(403).json( {"error" : err.message})
     } else {
-        res.status(500).json({"error": "Something went wrong on our end"})
+        res.status(500).json({"error": err.message})
     }
 }
 

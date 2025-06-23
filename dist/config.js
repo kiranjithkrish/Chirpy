@@ -6,7 +6,19 @@ function envOrThrow(key) {
     }
     return value;
 }
-export const config = {
+const migrationConfig = {
+    migrationsFolder: "./src/db/migrations",
+};
+export const apiConfig = {
     fileserverHits: 0,
-    dbUrl: envOrThrow("DB_URL")
+    dbUrl: envOrThrow("DB_URL"),
+    platform: envOrThrow("PLATFORM")
+};
+const dbConfig = {
+    url: envOrThrow("DB_URL"),
+    migrationConfig: migrationConfig
+};
+export const config = {
+    api: apiConfig,
+    db: dbConfig
 };

@@ -15,6 +15,6 @@ export function errorHandler(err, req, res, next) {
         res.status(403).json({ "error": err.message });
     }
     else {
-        res.status(500).json({ "error": "Something went wrong on our end" });
+        res.status(500).json({ "error": err.message });
     }
 }

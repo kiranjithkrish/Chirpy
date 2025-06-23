@@ -7,8 +7,8 @@ const migrationConfig: MigrationConfig = {
 };
 
 export default defineConfig({
-  schema: "src/db",
-  out: "src/db/migrations",
+  schema: "./src/db/schema.ts",
+  out: "./src/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
     url: "postgres://kiranjithkk:@localhost:5432/chirpy?sslmode=disable",

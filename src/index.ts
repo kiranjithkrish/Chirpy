@@ -4,19 +4,28 @@ import { middlewareLogResponses } from "./middlewares/logger.js";
 import { middlewareMetricsInc } from "./middlewares/metrics.js";
 import { handleMetrics } from "./api/metrics.js";
 import { handleMetricsReset } from "./api/reset.js";
-import { handleValidateChirp } from "./api/handleChirp.js";
+import { getAllChirps, getChirpWithId, handleChirp } from "./api/chirps.js";
 import { errorHandler } from "./middlewares/error.js";
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
+import { handleUserCreation } from "./api/handleUsers.js";
 
 const PORT: number = 8080
 
-
 const migrationClient = postgres(config.db.url, { max: 1 });
-await migrate(drizzle(migrationClient), config.db.migrationConfig);
+const db = drizzle(migrationClient);
 
+console.log('Starting migrations...');
+console.log('Migration folder:', config.db.migrationConfig.migrationsFolder);
+
+try {
+  await migrate(db, config.db.migrationConfig);
+  console.log('Migrations completed successfully');
+} catch (error) {
+  console.error('Migration failed:', error);
+}
 
 const app = express();
 
@@ -29,12 +38,22 @@ app.get("/api/healthz", middlewareLogResponses, middlewareMetricsInc, handleRead
 app.get("/admin/metrics", (req, res, next) => {
     Promise.resolve(handleMetrics(req, res)).catch(next)
 })
+app.get('/api/chirps', middlewareLogResponses, (req, res, next) => {
+    Promise.resolve(getAllChirps(req, res)).catch(next)
+})
+app.get('/api/chirps/:chirpId', middlewareLogResponses, (req, res, next) => {
+    Promise.resolve(getChirpWithId(req, res)).catch(next)
+})
 app.post("/admin/reset", (req, res, next) => {
     Promise.resolve(handleMetricsReset(req, res)).catch(next)
 })
-app.post('/api/validate_chirp',(req, res, next) => {
-    Promise.resolve(handleValidateChirp(req, res)).catch(next)
+app.post('/api/chirps',(req, res, next) => {
+    Promise.resolve(handleChirp(req, res)).catch(next)
 })
+app.post('/api/users', (req, res, next) => {
+    Promise.resolve(handleUserCreation(req, res).catch(next))
+})
+
 app.use(errorHandler)
 
 app.listen(PORT, () => {
