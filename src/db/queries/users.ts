@@ -3,7 +3,8 @@ import { db } from "../index.js";
 import { NewUser, User, users } from "../schema.js";
 import { UserBody } from "../../api/users.js";
 
-export async function createUser(user: NewUser): Promise<Omit<User, 'hashedPassword'>> {
+export type UserResponse = Omit<User, 'hashedPassword'>
+export async function createUser(user: NewUser): Promise<UserResponse> {
     console.log(user)
     const [result] = await db
                         .insert(users)

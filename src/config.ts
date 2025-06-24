@@ -4,7 +4,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 
 process.loadEnvFile()
-function envOrThrow(key: string) {
+export function envOrThrow(key: string) {
   const value = process.env[key];
   if(!value) {
     throw new Error(`Environment variable ${key} does not exist`)
