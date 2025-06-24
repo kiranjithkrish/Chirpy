@@ -6,6 +6,7 @@ export const users = pgTable("users", {
         .notNull()
         .defaultNow()
         .$onUpdate(() => new Date()),
+    hashedPassword: varchar("hashed_password").notNull().default('unset'),
     email: varchar("email", { length: 256 }).unique().notNull(),
 });
 export const chirps = pgTable("chirps", {

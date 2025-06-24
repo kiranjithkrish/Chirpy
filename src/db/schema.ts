@@ -7,10 +7,12 @@ export const users = pgTable("users", {
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
+  hashedPassword: varchar("hashed_password").notNull().default('unset'),
   email: varchar("email", { length: 256 }).unique().notNull(),
 });
 
 export type NewUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect
 
 export const chirps = pgTable("chirps", {
   id: uuid("id").primaryKey().defaultRandom(),

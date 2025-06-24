@@ -1,12 +1,25 @@
+import { eq } from "drizzle-orm";
 import { db } from "../index.js";
-import { NewUser, users } from "../schema.js";
+import { NewUser, User, users } from "../schema.js";
+import { UserBody } from "../../api/users.js";
 
-export async function createUser(user: NewUser): Promise<NewUser> {
+export async function createUser(user: NewUser): Promise<Omit<User, 'hashedPassword'>> {
+    console.log(user)
     const [result] = await db
                         .insert(users)
                         .values(user)
                         .onConflictDoNothing()
                         .returning();
+    const {hashedPassword, ...userWithoutPassword} = result
+    return userWithoutPassword
+}
+
+export async function getUser(user: UserBody): Promise<User> {
+    const [result] = await db
+                        .select()
+                        .from(users)
+                        .where(eq(users.email, user.email))
+  
     return result
 }
 

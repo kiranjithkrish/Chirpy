@@ -10,7 +10,7 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
-import { handleUserCreation } from "./api/handleUsers.js";
+import { handleUserCreation, handleUserLogin } from "./api/users.js";
 const PORT = 8080;
 const migrationClient = postgres(config.db.url, { max: 1 });
 const db = drizzle(migrationClient);
@@ -45,6 +45,9 @@ app.post('/api/chirps', (req, res, next) => {
 });
 app.post('/api/users', (req, res, next) => {
     Promise.resolve(handleUserCreation(req, res).catch(next));
+});
+app.post('/api/login', (req, res, next) => {
+    Promise.resolve(handleUserLogin(req, res).catch(next));
 });
 app.use(errorHandler);
 app.listen(PORT, () => {

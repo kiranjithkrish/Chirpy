@@ -1,11 +1,21 @@
+import { eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { users } from "../schema.js";
 export async function createUser(user) {
+    console.log(user);
     const [result] = await db
         .insert(users)
         .values(user)
         .onConflictDoNothing()
         .returning();
+    const { hashedPassword, ...userWithoutPassword } = result;
+    return userWithoutPassword;
+}
+export async function getUser(user) {
+    const [result] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, user.email));
     return result;
 }
 export async function deleteUsers() {
