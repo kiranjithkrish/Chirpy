@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { JwtPayload } from 'jsonwebtoken'
+import { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken'
 import jwt from 'jsonwebtoken'
 
 export async function hashPassword(password: string): Promise<string> {
@@ -37,7 +37,12 @@ export function validateJWT(tokenString: string, secret: string): string {
         }
         return userId
     } catch(err) {
-        throw new Error('JWT Token Validation failed')
+        if (err instanceof TokenExpiredError) {
+            throw new Error('JWT token has expired')
+        } else if (err instanceof JsonWebTokenError) {
+            throw new Error('Invalid JWT signature')
+        }
+        throw new Error('JWT Error: ' + (err as Error))
     }
 
 }
