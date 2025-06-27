@@ -1,5 +1,5 @@
 process.loadEnvFile();
-function envOrThrow(key) {
+export function envOrThrow(key) {
     const value = process.env[key];
     if (!value) {
         throw new Error(`Environment variable ${key} does not exist`);
@@ -18,6 +18,7 @@ const dbConfig = {
     url: envOrThrow("DB_URL"),
     migrationConfig: migrationConfig
 };
+export const jwtSecret = envOrThrow("JWT_SECRET");
 export const config = {
     api: apiConfig,
     db: dbConfig

@@ -1,6 +1,9 @@
 import bcrypt from 'bcrypt'
-import { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken'
+import { Request } from 'express'
 import jwt from 'jsonwebtoken'
+const { JsonWebTokenError, TokenExpiredError } = jwt;
+import type { JwtPayload } from 'jsonwebtoken';
+import { BadRequest, Unauthorised } from './api/errors';
 
 export async function hashPassword(password: string): Promise<string> {
     const saltRounds = 10
@@ -33,16 +36,32 @@ export function validateJWT(tokenString: string, secret: string): string {
         const jwtPayload = jwt.verify(tokenString, secret) as jwt.JwtPayload
         const userId = jwtPayload.sub
         if (!userId) {
-            throw new Error('Invalid or missing user ID in token');
+            throw new BadRequest('Invalid or missing user ID in token');
         }
         return userId
     } catch(err) {
         if (err instanceof TokenExpiredError) {
-            throw new Error('JWT token has expired')
+            throw new Unauthorised('JWT token has expired')
         } else if (err instanceof JsonWebTokenError) {
-            throw new Error('Invalid JWT signature')
+            throw new Unauthorised('Invalid JWT signature')
         }
-        throw new Error('JWT Error: ' + (err as Error))
+        throw new Unauthorised('JWT Error: ' + (err as Error))
     }
+}
 
+export function getBearerToken(req: Request): string {
+    const authHeader = req.get('Authorization')
+    if (!authHeader) {
+        throw new BadRequest('Authorization header is empty')
+    }
+    return extractBearerToken(authHeader)
+}
+
+export function extractBearerToken(authHeader: string) {
+    if (!authHeader.startsWith('Bearer ')) {
+        throw new BadRequest('Authorization should start with "Bearer "')
+    }
+    const items = authHeader.split(' ')
+    const tokenString = items[1]
+    return tokenString
 }

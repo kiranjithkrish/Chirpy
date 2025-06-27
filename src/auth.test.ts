@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { makeJWT, validateJWT } from "./auth";
+import { extractBearerToken, makeJWT, validateJWT } from "./auth";
+import { BadRequest } from "./api/errors";
 
 
 describe("JWT Token Logic", () => {
@@ -10,6 +11,7 @@ describe("JWT Token Logic", () => {
     const manjiSecret = "manji_secret";
     const kiranUserdId = 'kiran';
     const manjiUserId = 'manji';
+    
   beforeAll(async () => {
     signedJWTKiran = makeJWT(kiranUserdId, 1000, kiranSecret)
     signedJWTExpiresIn0 = makeJWT(kiranUserdId, 0, kiranSecret)
@@ -30,3 +32,29 @@ describe("JWT Token Logic", () => {
     expect(() => validateJWT(signedJWTKiran, "wrong_secret")).throw('Invalid JWT signature')
   })
 });
+
+describe('GetBearerToken', () => {
+  it("should extract token from a valid authorization header", () => {
+    const token = "my_secret_token"
+    const header = `Bearer ${token}`
+    expect(extractBearerToken(header)).toBe(token)
+  })
+
+   it("should extract token from a valid authorization header with extra data", () => {
+    const token = "my_secret_token"
+    const header = `Bearer ${token} more info`
+    expect(extractBearerToken(header)).toBe(token)
+  })
+
+   it("should throw error from a invalid authorization header", () => {
+    const token = "my_secret_token"
+    const header = `Berer ${token}`
+    expect(() => extractBearerToken(header)).toThrow(BadRequest)
+  })
+
+  it("should throw error for empty header", () => {
+    const token = "my_secret_token"
+    const header = ``
+    expect(() => extractBearerToken(header)).toThrow(BadRequest)
+  })
+})

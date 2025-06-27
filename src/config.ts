@@ -42,6 +42,8 @@ const dbConfig: DBConfig = {
   migrationConfig: migrationConfig
 }
 
+export const jwtSecret: string = envOrThrow("JWT_SECRET")
+
 export const config: Config = {
   api: apiConfig,
   db: dbConfig
