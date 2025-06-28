@@ -1,8 +1,9 @@
 import { createUser, getUser } from "../db/queries/users.js";
 import { BadRequest, Unauthorised } from "./errors.js";
 import { respondWithJSON } from "./json.js";
-import { checkPasswordHash, hashPassword, makeJWT } from "../auth.js";
+import { checkPasswordHash, hashPassword, makeJWT, makeRefreshToken } from "../auth.js";
 import { jwtSecret } from "../config.js";
+import { insertRefreshToken } from "../db/queries/refreshToken.js";
 export async function handleUserCreation(req, res) {
     const userBody = req.body;
     const emailVal = userBody.email;
@@ -48,7 +49,17 @@ export async function handleUserLogin(req, res) {
     if (!match) {
         throw new Unauthorised('Incorrect email or password');
     }
+    const refreshToken = makeRefreshToken();
+    const refreshTokenToInsert = {
+        userId: user.id,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + (60 * 24 * 60 * 60 * 1000))
+    };
+    const refreshTokenInfo = await insertRefreshToken(refreshTokenToInsert);
+    if (!refreshTokenInfo) {
+        throw new Error('Failed to insert the refresh token');
+    }
     const jwtToken = makeJWT(user.id, jwtExpiry, jwtSecret);
     const { hashedPassword, ...userWithoutPassword } = user;
-    respondWithJSON(res, 200, { ...userWithoutPassword, token: jwtToken });
+    respondWithJSON(res, 200, { ...userWithoutPassword, token: jwtToken, refreshToken: refreshTokenInfo.token });
 }

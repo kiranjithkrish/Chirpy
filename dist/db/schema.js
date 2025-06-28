@@ -19,3 +19,11 @@ export const chirps = pgTable("chirps", {
     body: text("body").notNull(),
     userId: uuid('user_id').notNull().references(() => users.id, { onDelete: "cascade" })
 });
+export const refreshTokens = pgTable("refresh_token", {
+    token: text("token").primaryKey(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().$onUpdate(() => new Date()),
+    userId: uuid('user_id').notNull().references(() => users.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expired_at").notNull(),
+    revokedAt: timestamp("revoked_at")
+});

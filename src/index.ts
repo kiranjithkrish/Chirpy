@@ -11,6 +11,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
 import { handleUserCreation, handleUserLogin } from "./api/users.js";
+import { handleRefreshToken, handleRevokeRefreshToken } from "./api/refreshToken.js";
 
 const PORT: number = 8080
 
@@ -53,9 +54,14 @@ app.post('/api/chirps',(req, res, next) => {
 app.post('/api/users', (req, res, next) => {
     Promise.resolve(handleUserCreation(req, res).catch(next))
 })
-
 app.post('/api/login', (req, res, next) => {
     Promise.resolve(handleUserLogin(req, res).catch(next))
+})
+app.post('/api/refresh', (req, res, next) => {
+    Promise.resolve(handleRefreshToken(req, res).catch(next))
+})
+app.post('/api/revoke', (req, res, next) => {
+    Promise.resolve(handleRevokeRefreshToken(req, res).catch(next))
 })
 
 app.use(errorHandler)

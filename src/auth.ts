@@ -3,7 +3,8 @@ import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 const { JsonWebTokenError, TokenExpiredError } = jwt;
 import type { JwtPayload } from 'jsonwebtoken';
-import { BadRequest, Unauthorised } from './api/errors';
+import { BadRequest, Unauthorised } from './api/errors.js';
+import crypto from 'crypto'
 
 export async function hashPassword(password: string): Promise<string> {
     const saltRounds = 10
@@ -64,4 +65,9 @@ export function extractBearerToken(authHeader: string) {
     const items = authHeader.split(' ')
     const tokenString = items[1]
     return tokenString
+}
+
+export function makeRefreshToken(): string {
+    const token = crypto.randomBytes(32).toString('hex')
+    return token
 }

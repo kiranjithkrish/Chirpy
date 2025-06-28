@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 const { JsonWebTokenError, TokenExpiredError } = jwt;
+import { BadRequest, Unauthorised } from './api/errors.js';
+import crypto from 'crypto';
 export async function hashPassword(password) {
     const saltRounds = 10;
     const encryptedPassword = await bcrypt.hash(password, saltRounds);
@@ -27,28 +29,36 @@ export function validateJWT(tokenString, secret) {
         const jwtPayload = jwt.verify(tokenString, secret);
         const userId = jwtPayload.sub;
         if (!userId) {
-            throw new Error('Invalid or missing user ID in token');
+            throw new BadRequest('Invalid or missing user ID in token');
         }
         return userId;
     }
     catch (err) {
         if (err instanceof TokenExpiredError) {
-            throw new Error('JWT token has expired');
+            throw new Unauthorised('JWT token has expired');
         }
         else if (err instanceof JsonWebTokenError) {
-            throw new Error('Invalid JWT signature');
+            throw new Unauthorised('Invalid JWT signature');
         }
-        throw new Error('JWT Error: ' + err);
+        throw new Unauthorised('JWT Error: ' + err);
     }
 }
 export function getBearerToken(req) {
     const authHeader = req.get('Authorization');
     if (!authHeader) {
-        throw new Error('Authorization header is empty');
+        throw new BadRequest('Authorization header is empty');
     }
+    return extractBearerToken(authHeader);
+}
+export function extractBearerToken(authHeader) {
     if (!authHeader.startsWith('Bearer ')) {
-        throw new Error('Authorization should start with "Bearer "');
+        throw new BadRequest('Authorization should start with "Bearer "');
     }
-    const tokenString = authHeader.substring(7);
+    const items = authHeader.split(' ');
+    const tokenString = items[1];
     return tokenString;
+}
+export function makeRefreshToken() {
+    const token = crypto.randomBytes(32).toString('hex');
+    return token;
 }

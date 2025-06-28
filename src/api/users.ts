@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { createUser, getUser } from "../db/queries/users.js";
-import { NewUser, User } from "../db/schema.js";
+import { NewRefreshToken, NewUser, User } from "../db/schema.js";
 import { BadRequest, Unauthorised } from "./errors.js";
 import { respondWithJSON } from "./json.js";
-import { checkPasswordHash, hashPassword, makeJWT } from "../auth.js";
+import { checkPasswordHash, hashPassword, makeJWT, makeRefreshToken } from "../auth.js";
 import { jwtSecret } from "../config.js";
+import { insertRefreshToken } from "../db/queries/refreshToken.js";
 
 export type UserBody = {
     email: string
@@ -56,7 +57,17 @@ export async function handleUserLogin(req: Request, res: Response) {
     if (!match) {
         throw new Unauthorised('Incorrect email or password')
     }
+    const refreshToken = makeRefreshToken()
+    const refreshTokenToInsert: NewRefreshToken = {
+        userId: user.id,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + (60 * 24 * 60 * 60 * 1000)) 
+    }
+    const refreshTokenInfo = await insertRefreshToken(refreshTokenToInsert)
+    if (!refreshTokenInfo) {
+        throw new Error('Failed to insert the refresh token')
+    }
     const jwtToken = makeJWT(user.id, jwtExpiry, jwtSecret)
     const { hashedPassword, ...userWithoutPassword } = user
-    respondWithJSON(res, 200, { ...userWithoutPassword , token: jwtToken })
+    respondWithJSON(res, 200, { ...userWithoutPassword , token: jwtToken, refreshToken: refreshTokenInfo.token })
 }
