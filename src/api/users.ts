@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { createUser, getUser } from "../db/queries/users.js";
+import { createUser, getUser, updateUsers } from "../db/queries/users.js";
 import { NewRefreshToken, NewUser, User } from "../db/schema.js";
 import { BadRequest, Unauthorised } from "./errors.js";
 import { respondWithJSON } from "./json.js";
-import { checkPasswordHash, hashPassword, makeJWT, makeRefreshToken } from "../auth.js";
+import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "../auth.js";
 import { jwtSecret } from "../config.js";
 import { insertRefreshToken } from "../db/queries/refreshToken.js";
 
@@ -70,4 +70,36 @@ export async function handleUserLogin(req: Request, res: Response) {
     const jwtToken = makeJWT(user.id, jwtExpiry, jwtSecret)
     const { hashedPassword, ...userWithoutPassword } = user
     respondWithJSON(res, 200, { ...userWithoutPassword , token: jwtToken, refreshToken: refreshTokenInfo.token })
+}
+
+
+export type UpdatedUser = {
+    email: string
+    userId: string
+    hashedPassword: string
+}
+export async function handleUpdateUser(req: Request, res: Response) {
+    const userBody: UserBody = req.body
+    const emailVal = userBody.email
+    const password = userBody.password
+    const authHeader = req.get('Authorization')
+    if(!authHeader) {
+        throw new Unauthorised('Missing access token')
+    }
+    const accessToken = getBearerToken(req)
+    console.log('About to validate JWT with secret length for user update:', jwtSecret.length)
+    const userId = validateJWT(accessToken, jwtSecret)
+    if (!userId) {
+        throw new Unauthorised('HandleUserUpdateError: Not Authorised')
+    }
+    console.log('JWT validation successful, userId:', userId)
+       const newUser = {
+        email: emailVal,
+        userId: userId,
+        hashedPassword: await hashPassword(password)
+    }
+    const updatedUser = await updateUsers(newUser)
+    const { hashedPassword, ...userWithoutPassword } = updatedUser
+    respondWithJSON(res, 200, userWithoutPassword)
+
 }

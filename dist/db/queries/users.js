@@ -29,3 +29,11 @@ export async function deleteUsers() {
     }
     return result.count;
 }
+export async function updateUsers(newUser) {
+    const [result] = await db
+        .update(users)
+        .set({ id: newUser.userId, hashedPassword: newUser.hashedPassword, email: newUser.email })
+        .where(eq(users.id, newUser.userId))
+        .returning();
+    return result;
+}
