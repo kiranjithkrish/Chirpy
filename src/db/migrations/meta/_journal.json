@@ -29,6 +29,13 @@
       "when": 1751052039989,
       "tag": "0003_complex_karnak",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1751318105505,
+      "tag": "0004_jazzy_black_tarantula",
+      "breakpoints": true
     }
   ]
 }

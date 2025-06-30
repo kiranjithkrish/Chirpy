@@ -32,8 +32,16 @@ export async function deleteUsers() {
 export async function updateUsers(newUser) {
     const [result] = await db
         .update(users)
-        .set({ id: newUser.userId, hashedPassword: newUser.hashedPassword, email: newUser.email })
+        .set({ hashedPassword: newUser.hashedPassword, email: newUser.email })
         .where(eq(users.id, newUser.userId))
+        .returning();
+    return result;
+}
+export async function upgradeUsers(userId) {
+    const [result] = await db
+        .update(users)
+        .set({ isChirpyRed: true })
+        .where(eq(users.id, userId))
         .returning();
     return result;
 }

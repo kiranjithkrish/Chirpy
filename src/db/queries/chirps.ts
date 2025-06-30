@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../index.js";
 import { Chirp, NewChirp, chirps } from "../schema.js";
 
@@ -41,3 +41,11 @@ export async function getChirp(chirpId: string): Promise< Chirp | undefined> {
                             .where(eq(chirps.id, chirpId))
     return result
 }
+
+export async function deleteChirp(chirpId: string): Promise<boolean> {
+    const result = await db.delete(chirps)
+            .where(eq(chirps.id, chirpId))
+            .returning()
+    return result.length > 0
+}
+

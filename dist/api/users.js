@@ -1,5 +1,5 @@
-import { createUser, getUser, updateUsers } from "../db/queries/users.js";
-import { BadRequest, Unauthorised } from "./errors.js";
+import { createUser, getUser, updateUsers, upgradeUsers } from "../db/queries/users.js";
+import { BadRequest, NotFoundError, Unauthorised } from "./errors.js";
 import { respondWithJSON } from "./json.js";
 import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "../auth.js";
 import { jwtSecret } from "../config.js";
@@ -86,4 +86,16 @@ export async function handleUpdateUser(req, res) {
     const updatedUser = await updateUsers(newUser);
     const { hashedPassword, ...userWithoutPassword } = updatedUser;
     respondWithJSON(res, 200, userWithoutPassword);
+}
+export async function handleUpgradeUser(req, res) {
+    const reqBody = req.body;
+    if (reqBody.event !== "user.upgraded") {
+        res.status(204).send();
+        return;
+    }
+    const upgradeUser = await upgradeUsers(reqBody.data.userId);
+    if (!upgradeUser) {
+        throw new NotFoundError('User is not found');
+    }
+    res.status(204).send();
 }

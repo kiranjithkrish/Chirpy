@@ -1,6 +1,6 @@
 import { respondWithJSON } from "./json.js";
-import { BadRequest, NotFoundError } from "./errors.js";
-import { createChirp, getChirp, getChirps } from "../db/queries/chirps.js";
+import { BadRequest, Forbidden, NotFoundError, Unauthorised } from "./errors.js";
+import { createChirp, deleteChirp, getChirp, getChirps } from "../db/queries/chirps.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 import { jwtSecret } from "../config.js";
 export async function handleChirp(req, res) {
@@ -33,6 +33,32 @@ export async function handleChirp(req, res) {
         throw new Error('Failed to insert chirp into db');
     }
     respondWithJSON(res, 201, insertedChirp);
+}
+export async function deleteChirpWithId(req, res) {
+    const userBody = req.body;
+    const chirpId = req.params.chirpID;
+    const authHeader = req.get('Authorization');
+    if (!authHeader) {
+        throw new Unauthorised('Missing access token');
+    }
+    const accessToken = getBearerToken(req);
+    const userId = validateJWT(accessToken, jwtSecret);
+    if (!userId) {
+        throw new Unauthorised('HandleUserUpdateError: Not Authorised');
+    }
+    console.log('JWT validation successful, userId:', userId);
+    const chirp = await getChirp(chirpId);
+    if (!chirp) {
+        throw new NotFoundError('Chirp to delete is not found');
+    }
+    if (chirp.userId !== userId) {
+        throw new Forbidden('You are not authorised to delete this chirp');
+    }
+    const deleted = await deleteChirp(chirpId);
+    if (!deleted) {
+        throw new NotFoundError('Your chirp is not found');
+    }
+    res.status(204).send();
 }
 export async function getAllChirps(req, res) {
     const chirps = await getChirps();

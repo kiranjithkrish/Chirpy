@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { createUser, getUser, updateUsers } from "../db/queries/users.js";
+import { createUser, getUser, updateUsers, upgradeUsers } from "../db/queries/users.js";
 import { NewRefreshToken, NewUser, User } from "../db/schema.js";
-import { BadRequest, Unauthorised } from "./errors.js";
+import { BadRequest, NotFoundError, Unauthorised } from "./errors.js";
 import { respondWithJSON } from "./json.js";
 import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "../auth.js";
 import { jwtSecret } from "../config.js";
@@ -102,4 +102,24 @@ export async function handleUpdateUser(req: Request, res: Response) {
     const { hashedPassword, ...userWithoutPassword } = updatedUser
     respondWithJSON(res, 200, userWithoutPassword)
 
+}
+
+export type UpgradeBody = {
+    event: String,
+    data: {
+        userId: string
+    }
+}
+
+export async function handleUpgradeUser(req: Request, res: Response) {
+    const reqBody: UpgradeBody = req.body
+    if(reqBody.event !== "user.upgraded") {
+        res.status(204).send()
+        return
+    }
+    const upgradeUser = await upgradeUsers(reqBody.data.userId)
+    if (!upgradeUser) {
+        throw new NotFoundError('User is not found')
+    }
+    res.status(204).send()
 }
