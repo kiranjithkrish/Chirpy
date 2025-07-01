@@ -12,7 +12,8 @@ const migrationConfig = {
 export const apiConfig = {
     fileserverHits: 0,
     dbUrl: envOrThrow("DB_URL"),
-    platform: envOrThrow("PLATFORM")
+    platform: envOrThrow("PLATFORM"),
+    polkaKey: envOrThrow("POLKA_KEY")
 };
 const dbConfig = {
     url: envOrThrow("DB_URL"),

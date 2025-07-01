@@ -25,10 +25,11 @@ export async function createChirp(chirp) {
         throw error;
     }
 }
-export async function getChirps() {
+export async function getChirps(authorId) {
     const result = await db
         .select()
-        .from(chirps);
+        .from(chirps)
+        .where(authorId ? eq(chirps.userId, authorId) : undefined);
     return result;
 }
 export async function getChirp(chirpId) {

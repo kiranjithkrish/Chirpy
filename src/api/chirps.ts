@@ -7,32 +7,22 @@ import { getBearerToken, validateJWT } from "../auth.js";
 import { jwtSecret } from "../config.js";
 import { UserBody } from "./users.js";
 
-
  export type JSONBody = {
     body: string
  }
+
  export type ResponseBody = {
     cleanedBody: string
  }
 export async function handleChirp(req: Request, res: Response) {
     let parsedBody: JSONBody = req.body;
     const body = parsedBody.body
-    
     // Debug the authorization header
     const authHeader = req.get('Authorization')
-    console.log('Raw Authorization header:', authHeader)
-    
     const jwtToken = getBearerToken(req)
-    console.log(`Extracted token is: ${jwtToken}`)
-    console.log(`Token length: ${jwtToken.length}`)
-    console.log(`First 50 chars: ${jwtToken.substring(0, 50)}...`)
-    
     if (!body) {
         throw new BadRequest('Body is required');
     }
-    
-    // Add debugging to JWT validation
-    console.log('About to validate JWT with secret length:', jwtSecret.length)
     const userId = validateJWT(jwtToken, jwtSecret)
     console.log('JWT validation successful, userId:', userId)
     
@@ -50,8 +40,6 @@ export async function handleChirp(req: Request, res: Response) {
     }
     respondWithJSON(res, 201, insertedChirp)
 }
-
-
 export async function deleteChirpWithId(req: Request, res: Response) {
     const userBody: UserBody = req.body
     const chirpId = req.params.chirpID
@@ -78,15 +66,18 @@ export async function deleteChirpWithId(req: Request, res: Response) {
     }
     res.status(204).send()
 }
-
 export async function getAllChirps(req: Request, res: Response) {
-    const chirps = await getChirps()
+    const authorIdQuery = req.query.authorId
+    let authorId = "empty"
+    if (typeof authorIdQuery === "string") {
+        authorId = authorIdQuery;
+    }
+    const chirps = await getChirps(authorId)
     if (!chirps) {
         throw new Error('Failed to get all the chirps')
     }
     respondWithJSON(res, 200, chirps)
 }
-
 export async function getChirpWithId(req: Request, res: Response) {
     const chirpId = req.params.chirpId
     const chirp = await getChirp(chirpId)

@@ -27,10 +27,11 @@ export async function createChirp(chirp: NewChirp) {
     }
 }
 
-export async function getChirps(): Promise<Chirp[]> {
+export async function getChirps(authorId: string | null): Promise<Chirp[]> {
     const result = await db
                         .select()
                         .from(chirps)
+                        .where(authorId ? eq(chirps.userId, authorId) : undefined)
     return result
 }
 

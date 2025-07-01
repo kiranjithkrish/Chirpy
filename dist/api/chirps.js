@@ -8,16 +8,10 @@ export async function handleChirp(req, res) {
     const body = parsedBody.body;
     // Debug the authorization header
     const authHeader = req.get('Authorization');
-    console.log('Raw Authorization header:', authHeader);
     const jwtToken = getBearerToken(req);
-    console.log(`Extracted token is: ${jwtToken}`);
-    console.log(`Token length: ${jwtToken.length}`);
-    console.log(`First 50 chars: ${jwtToken.substring(0, 50)}...`);
     if (!body) {
         throw new BadRequest('Body is required');
     }
-    // Add debugging to JWT validation
-    console.log('About to validate JWT with secret length:', jwtSecret.length);
     const userId = validateJWT(jwtToken, jwtSecret);
     console.log('JWT validation successful, userId:', userId);
     const cleanedChirp = profanityValidation(body);
@@ -61,7 +55,13 @@ export async function deleteChirpWithId(req, res) {
     res.status(204).send();
 }
 export async function getAllChirps(req, res) {
-    const chirps = await getChirps();
+    const authorIdQuery = req.query.authorId;
+    let authorId = "empty";
+    if (typeof authorIdQuery === "string") {
+        authorId = authorIdQuery;
+    }
+    console.log(`Author id ************** ${authorId}`);
+    const chirps = await getChirps(authorId);
     if (!chirps) {
         throw new Error('Failed to get all the chirps');
     }

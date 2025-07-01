@@ -1,8 +1,8 @@
 import { createUser, getUser, updateUsers, upgradeUsers } from "../db/queries/users.js";
 import { BadRequest, NotFoundError, Unauthorised } from "./errors.js";
 import { respondWithJSON } from "./json.js";
-import { checkPasswordHash, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "../auth.js";
-import { jwtSecret } from "../config.js";
+import { checkPasswordHash, getAPIKey, getBearerToken, hashPassword, makeJWT, makeRefreshToken, validateJWT } from "../auth.js";
+import { apiConfig, jwtSecret } from "../config.js";
 import { insertRefreshToken } from "../db/queries/refreshToken.js";
 export async function handleUserCreation(req, res) {
     const userBody = req.body;
@@ -92,6 +92,10 @@ export async function handleUpgradeUser(req, res) {
     if (reqBody.event !== "user.upgraded") {
         res.status(204).send();
         return;
+    }
+    const apiKey = getAPIKey(req);
+    if (apiKey !== apiConfig.polkaKey) {
+        throw new Unauthorised("Polka api key is not authorized");
     }
     const upgradeUser = await upgradeUsers(reqBody.data.userId);
     if (!upgradeUser) {

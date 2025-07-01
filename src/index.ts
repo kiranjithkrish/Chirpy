@@ -72,6 +72,7 @@ app.post('/api/revoke', (req, res, next) => {
 app.post('/api/polka/webhooks', (req, res, next) => {
     Promise.resolve(handleUpgradeUser(req, res).catch(next))
 })
+
 app.use(errorHandler)
 
 app.listen(PORT, () => {

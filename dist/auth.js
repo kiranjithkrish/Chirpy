@@ -58,6 +58,21 @@ export function extractBearerToken(authHeader) {
     const tokenString = items[1];
     return tokenString;
 }
+export function getAPIKey(req) {
+    const authHeader = req.get('Authorization');
+    if (!authHeader) {
+        throw new Unauthorised('Authorization header is empty');
+    }
+    return extractAPIKey(authHeader);
+}
+export function extractAPIKey(header) {
+    if (!header.startsWith('ApiKey ')) {
+        throw new Unauthorised('Authorization should start with "Bearer "');
+    }
+    const items = header.split(' ');
+    const tokenString = items[1];
+    return tokenString;
+}
 export function makeRefreshToken() {
     const token = crypto.randomBytes(32).toString('hex');
     return token;

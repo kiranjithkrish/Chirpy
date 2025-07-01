@@ -23,7 +23,8 @@ type DBConfig = {
 type APIConfig = {
   fileserverHits: number;
   dbUrl: string;
-  platform: string
+  platform: string;
+  polkaKey: string;
 };
 
 type Config = {
@@ -34,7 +35,8 @@ type Config = {
 export const apiConfig: APIConfig = {
     fileserverHits: 0,
     dbUrl: envOrThrow("DB_URL"),
-    platform: envOrThrow("PLATFORM")
+    platform: envOrThrow("PLATFORM"),
+    polkaKey: envOrThrow("POLKA_KEY")
 }
 
 const dbConfig: DBConfig = {
