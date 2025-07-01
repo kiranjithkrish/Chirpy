@@ -67,12 +67,17 @@ export async function deleteChirpWithId(req: Request, res: Response) {
     res.status(204).send()
 }
 export async function getAllChirps(req: Request, res: Response) {
-    const authorIdQuery = req.query.authorId
-    let authorId = "empty"
+    const authorIdQuery = req.query.authorId;
+    const sort = req.query.sort
+    let authorId = null;
+    let sortOption = null;
     if (typeof authorIdQuery === "string") {
         authorId = authorIdQuery;
     }
-    const chirps = await getChirps(authorId)
+    if (typeof sort === 'string') {
+        sortOption = sort;
+    }
+    const chirps = await getChirps(authorId, sortOption)
     if (!chirps) {
         throw new Error('Failed to get all the chirps')
     }
